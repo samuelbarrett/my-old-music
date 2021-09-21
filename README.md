@@ -5,4 +5,6 @@ date:		2021/09/14
 
 How old is your Spotify music? This program will analyze your Spotify data and tell you the average age of the music you listen to.
 
+Dependencies: spotify-web-api-node
+
 Note to self: remember to never include my Spotify Client ID in the public repo. That is not ideal.
