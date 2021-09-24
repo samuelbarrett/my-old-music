@@ -6,17 +6,18 @@
 //	Handle requests for My Old Music using Express web framework.
 
 //	Express and related tools
-var express = require('express');
-var request = require('request');
-var cors = require('cors');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+import express from 'express';
+import request from 'request';
+var cors = import('cors');
+var cookieParser = import('cookie-parser');
+var bodyParser = import('body-parser');
 
 // Spotify developer credentials
 // TODO: we'll need a server-side way to handle this delicate information securely. That comes later.
 const client_id = '06dd2159f6d24963829a1e9ede289664';
-const client_secret = ''; // don't put this on github
+const client_secret = '074bab95aa1840e88461802ceb8b6627'; // don't put this on github
 const redirect_uri = 'http://localhost:8000/callback';
+const origin = 'http://localhost:8000';
 
 var app = express();	// Express object
 var stateKey = 'spotify_auth_state';	// stateKey to be sent to Spotify (along with generated state string) for security.
@@ -24,10 +25,10 @@ var stateKey = 'spotify_auth_state';	// stateKey to be sent to Spotify (along wi
 
 app.use(express.static('../public'))	// allow serving of static content found in public directory (the HTML, any images.)
 	.use(cookieParser())	// and use of cookieParser tool
-	.use(cors());
+	.use(cors( { origin: 'http://localhost:8000' } ));
 
 // return a randomly generated string of length characters
-var getRandomString = function(length) {
+var getRandomString = function(length: Number) {
 	var random = '';
 	var choices = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 

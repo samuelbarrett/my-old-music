@@ -2,7 +2,7 @@
   "name": "my-old-music",
   "version": "1.0.0",
   "description": "How old is my Spotify library?",
-  "main": "app.js",
+  "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,5 +23,14 @@
   "bugs": {
     "url": "https://github.com/samuelbarrett/my-old-music/issues"
   },
-  "homepage": "https://github.com/samuelbarrett/my-old-music#readme"
+  "homepage": "https://github.com/samuelbarrett/my-old-music#readme",
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.9.6",
+    "@types/request": "^2.48.7",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  }
 }
