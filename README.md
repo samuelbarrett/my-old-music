@@ -7,6 +7,9 @@
 <text>Note to self: remember to never include my Spotify client_secret in the public repo. That is not ideal.</text>
 
 <h2>Compilation/running instructions:</h2>
-<text>	Compile using build script: npm run build</text>	
-<text>	Run with script: npm run start</text>
-<text>		This will use ts-node-dev to make the server restart upon any changes you make.</text>
+
+<text>Compile using build script: npm run build</text>	
+
+<text>Run with script: npm run start</text>
+
+<text>This will use ts-node-dev to make the server restart upon any changes you make.</text>
