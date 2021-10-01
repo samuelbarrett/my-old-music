@@ -5,12 +5,11 @@
 // 	
 //	Handle requests for My Old Music using Express web framework.
 
-//	Express and related tools
 import express from 'express';
 import request from 'request';
-var cors = import('cors');
-var cookieParser = import('cookie-parser');
-var bodyParser = import('body-parser');
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 
 // Spotify developer credentials
 // TODO: we'll need a server-side way to handle this delicate information securely. That comes later.
@@ -25,7 +24,7 @@ var stateKey = 'spotify_auth_state';	// stateKey to be sent to Spotify (along wi
 
 app.use(express.static('../public'))	// allow serving of static content found in public directory (the HTML, any images.)
 	.use(cookieParser())	// and use of cookieParser tool
-	.use(cors( { origin: 'http://localhost:8000' } ));
+	.use(cors( { origin: origin } ));
 
 // return a randomly generated string of length characters
 var getRandomString = function(length: Number) {
