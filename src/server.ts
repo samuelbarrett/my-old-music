@@ -58,7 +58,7 @@ app.get('/login', function(req, res) {
 		redirect_uri: redirect_uri,
 		state: state
 	}).toString());
-	// ** The same URL parsed manually without URLSearchParams would look like this:
+	// ** Reference: the same URL parsed manually without URLSearchParams would look like this:
 		// '?response_type=code' +
 		// '&client_id=' + client_id +
 		// (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
