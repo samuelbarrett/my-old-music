@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 
 // Spotify developer credentials
 const client_id = '06dd2159f6d24963829a1e9ede289664'
-const client_secret = ''
+const client_secret = 'deedf4c2a2fa43188420fb4699d8c24d'
 const redirect_uri = 'http://localhost:8000/callback'
 
 // set up express
@@ -82,18 +82,37 @@ app.get('/callback', (req, res) => {
 		if(code !== null) {
 			spotify.authorizationCodeGrant(code).then(
 				function(data: any) {
-				  console.log('The token expires in ' + data.body['expires_in']);
-				  console.log('The access token is ' + data.body['access_token']);
-				  console.log('The refresh token is ' + data.body['refresh_token']);
+				  	console.log('The token expires in ' + data.body['expires_in'])
+				  	console.log('The access token is ' + data.body['access_token'])
+				  	console.log('The refresh token is ' + data.body['refresh_token'])
 			  
-				  // Set the access token on the API object to use it in later calls
-				  spotify.setAccessToken(data.body['access_token']);
-				  spotify.setRefreshToken(data.body['refresh_token']);
+				  	// Set the access token on the API object to use it in later calls
+				  	spotify.setAccessToken(data.body['access_token'])
+				  	spotify.setRefreshToken(data.body['refresh_token'])
+					
+					// get tracks from library
+					spotify.getMySavedTracks({
+						limit: 2,
+						offset: 0
+					}).then(
+						function(data: any) {
+							console.log(data.body.items)
+							// successful request
+							if(data.statusCode == 200) {
+
+							} else {
+								console.log("Error: request returned status code: " + data.statusCode)
+							}
+						},
+						function(err: any) {
+							console.log(err)
+						}
+					)
 				},
 				function(err: any) {
-				  console.log('Something went wrong!', err);
+				  console.log('Something went wrong!', err)
 				}
-			  );
+			)
 		} else {
 			console.log(error)
 		}
@@ -103,7 +122,7 @@ app.get('/callback', (req, res) => {
 		}))
 	}
 
-	//res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
+	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
 })
 
 
