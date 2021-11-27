@@ -14,9 +14,9 @@ import bodyParser from 'body-parser';
 // Spotify developer credentials
 // TODO: we'll need a server-side way to handle this delicate information securely. That comes later.
 const client_id = '06dd2159f6d24963829a1e9ede289664';
-const client_secret = '074bab95aa1840e88461802ceb8b6627'; // don't put this on github
-const redirect_uri = 'http://localhost:8000/callback';
-const origin = 'http://localhost:8000';
+const client_secret = ''; // don't put this on github
+const redirect_uri = 'http://localhost:5500/callback';
+const origin = 'http://127.0.0.1:5500';
 
 var app = express();	// Express object
 var stateKey = 'spotify_auth_state';	// stateKey to be sent to Spotify (along with generated state string) for security.
@@ -48,7 +48,7 @@ app.get('/', function(req, res) {
 app.get('/login', function(req, res) {
 	let state = getRandomString(16);
 	let scopes = 'user-library-read';	// the permission(s) we require
-
+	
 	res.cookie(stateKey, state); // send the state to Spotify (it will return it, and we'll verify correctness)
 
 	res.redirect('https://accounts.spotify.com/authorize?' + new URLSearchParams({
