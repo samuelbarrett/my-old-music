@@ -47,9 +47,10 @@ app.get('/', (req, res) => {
 	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
 })
 
-// redirect to spotify user login
+let state = getRandomString(16)
+
+// redirect to Spotify Accounts Service
 app.get('/login', function(req, res) {
-	let state = getRandomString(16);
 	let scopes = 'user-library-read';
 	
 	res.cookie(stateKey, state);
@@ -67,6 +68,43 @@ app.get('/login', function(req, res) {
 		// (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
 		// '&redirect_uri=' + encodeURIComponent(redirect_uri));
 });
+
+// upon return from Spotify Accounts Service
+app.get('/callback', (req, res) => {
+	// --check state, check for presence of error or code parameter (fail or success)
+	// --if fail, report
+	// --if success, request access token using code
+	var returnState = req.query.state || null
+	var code = req.query.code || null
+	var error = req.query.error || null
+
+	if(returnState === state) {
+		if(code !== null) {
+			spotify.authorizationCodeGrant(code).then(
+				function(data: any) {
+				  console.log('The token expires in ' + data.body['expires_in']);
+				  console.log('The access token is ' + data.body['access_token']);
+				  console.log('The refresh token is ' + data.body['refresh_token']);
+			  
+				  // Set the access token on the API object to use it in later calls
+				  spotify.setAccessToken(data.body['access_token']);
+				  spotify.setRefreshToken(data.body['refresh_token']);
+				},
+				function(err: any) {
+				  console.log('Something went wrong!', err);
+				}
+			  );
+		} else {
+			console.log(error)
+		}
+	} else {
+		res.redirect('/#' + new URLSearchParams({
+			error: 'state_mismatch'
+		}))
+	}
+
+	//res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
+})
 
 
 
