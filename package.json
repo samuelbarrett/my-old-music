@@ -22,7 +22,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "request": "^2.88.2",
-    "spotify-web-api-node": "^5.0.2"
+    "spotify-web-api-node": "^5.0.2",
+    "superagent": "^6.1.0"
   },
   "bugs": {
     "url": "https://github.com/samuelbarrett/my-old-music/issues"
