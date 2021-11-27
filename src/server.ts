@@ -14,7 +14,7 @@ import bodyParser from 'body-parser';
 // Spotify developer credentials
 // TODO: we'll need a server-side way to handle this delicate information securely. That comes later.
 const client_id = '06dd2159f6d24963829a1e9ede289664';
-const client_secret = '88186a16d28c4e6b898a35349bf68c8d'; // don't put this on github
+const client_secret = ''; // don't put this on github
 const redirect_uri = 'http://localhost:5500/callback';
 const origin = 'http://127.0.0.1:5500';
 
