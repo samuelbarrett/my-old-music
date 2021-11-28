@@ -3,7 +3,6 @@ import request from 'request';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import { listenerCount } from 'process';
 
 
 // Spotify developer credentials
