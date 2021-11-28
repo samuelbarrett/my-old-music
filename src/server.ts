@@ -3,6 +3,8 @@ import request from 'request';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import { listenerCount } from 'process';
+
 
 // Spotify developer credentials
 const client_id = '06dd2159f6d24963829a1e9ede289664'
@@ -92,11 +94,11 @@ app.get('/callback', (req, res) => {
 					
 					// get tracks from library
 					spotify.getMySavedTracks({
-						limit: 2,
-						offset: 0
+						limit: 3,
+						offset: 70
 					}).then(
 						function(data: any) {
-							console.log(data.body.items)
+							console.log(data)
 							// successful request
 							if(data.statusCode == 200) {
 
@@ -125,7 +127,16 @@ app.get('/callback', (req, res) => {
 	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
 })
 
+// -- PARSING THE DATA --
 
+function getSongList(data: any) {
+	// for each data.body.items, extract the song titles into a list
+	// -pagination details in data.body
+	// -statusCode in data
+	if(data != null) {
+		
+	}
+}
 
 
 app.listen(port, () => {
