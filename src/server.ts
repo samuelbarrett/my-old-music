@@ -100,9 +100,9 @@ app.get('/callback', (req, res) => {
 							console.log(data)
 							// successful request
 							if(data.statusCode == 200) {
-
+								getSongList(data)
 							} else {
-								console.log("Error: request returned status code: " + data.statusCode)
+								console.log("Error: request returned status code " + data.statusCode)
 							}
 						},
 						function(err: any) {
@@ -133,7 +133,11 @@ function getSongList(data: any) {
 	// -pagination details in data.body
 	// -statusCode in data
 	if(data != null) {
-		
+		var songs: Array<Object> = data.body.items
+		console.log("SONGS ARE: \n")
+		songs.forEach(function(song) {
+			console.log(song)	// this works!
+		})
 	}
 }
 
