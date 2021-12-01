@@ -7,7 +7,7 @@ import bodyParser from 'body-parser';
 
 // Spotify developer credentials
 const client_id = '06dd2159f6d24963829a1e9ede289664'
-const client_secret = 'deedf4c2a2fa43188420fb4699d8c24d'
+const client_secret = ''
 const redirect_uri = 'http://localhost:8000/callback'
 
 // set up express
