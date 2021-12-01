@@ -1,26 +1,21 @@
-//	server.js
-//
-// 	Sam Barrett
-// 	2021/09/14
-// 	
-//	Handle requests for My Old Music using Express web framework.
-
 import express from 'express';
 import request from 'request';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
-// Spotify developer credentials
-// TODO: we'll need a server-side way to handle this delicate information securely. That comes later.
-const client_id = '06dd2159f6d24963829a1e9ede289664';
-const client_secret = ''; // don't put this on github
-const redirect_uri = 'http://localhost:5500/callback';
-const origin = 'http://127.0.0.1:5500';
 
-var app = express();	// Express object
-var stateKey = 'spotify_auth_state';	// stateKey to be sent to Spotify (along with generated state string) for security.
-										// Any legitimate response will have the same state string.
+// Spotify developer credentials
+const client_id = '06dd2159f6d24963829a1e9ede289664'
+const client_secret = 'deedf4c2a2fa43188420fb4699d8c24d'
+const redirect_uri = 'http://localhost:8000/callback'
+
+// set up express
+const app = express()
+const port = 8000
+const origin = 'http://localhost:8000'
+const stateKey = 'spotify-auth-state'
+const scopes = 'user-read-private user-read-library'
 
 app.use(express.static('../public'))	// allow serving of static content found in public directory (the HTML, any images.)
 	.use(cookieParser())	// and use of cookieParser tool
@@ -28,28 +23,38 @@ app.use(express.static('../public'))	// allow serving of static content found in
 
 // return a randomly generated string of length characters
 var getRandomString = function(length: Number) {
-	var random = '';
-	var choices = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var random = ''
+	var choices = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
 	for(let i = 0; i < length; i++) {
-		random += choices.charAt( Math.floor(Math.random() * choices.length) );
+		random += choices.charAt( Math.floor(Math.random() * choices.length) )
 	}
-	return random;
-};
+	return random
+}
 
-// ---- Express Routing ----
+// Spotify Web Api init
+var SpotifyWebApi = require('spotify-web-api-node')
 
-// Homepage - home.html
-app.get('/', function(req, res) {
-	res.sendFile('home.html', {root: '../public'});
-});
+var spotify = new SpotifyWebApi({
+	clientId: client_id,
+	clientSecret: client_secret,
+	redirectUri: redirect_uri
+})
 
-// Login redirects to Spotify's Accounts service for user authentication: uses Spotify's Authorization Code flow.
+
+// -- EXPRESS ROUTING --
+
+app.get('/', (req, res) => {
+	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
+})
+
+let state = getRandomString(16)
+
+// redirect to Spotify Accounts Service
 app.get('/login', function(req, res) {
-	let state = getRandomString(16);
-	let scopes = 'user-library-read';	// the permission(s) we require
+	let scopes = 'user-library-read';
 	
-	res.cookie(stateKey, state); // send the state to Spotify (it will return it, and we'll verify correctness)
+	res.cookie(stateKey, state);
 
 	res.redirect('https://accounts.spotify.com/authorize?' + new URLSearchParams({
 		response_type: 'code',
@@ -65,75 +70,78 @@ app.get('/login', function(req, res) {
 		// '&redirect_uri=' + encodeURIComponent(redirect_uri));
 });
 
-// Callback from the Spotify Accounts service.
-//	Upon return, ...
-app.get('/callback', function(req, res) {
-	
-	// data returned by spotify
-	console.log(req.query);
-	let code = req.query.code || null;
-	let state = req.query.state || null;
-	let storedState = req.cookies ? req.cookies[stateKey] : null;
+// upon return from Spotify Accounts Service
+app.get('/callback', (req, res) => {
+	// --check state, check for presence of error or code parameter (fail or success)
+	// --if fail, report
+	// --if success, request access token using code
+	var returnState = req.query.state || null
+	var code = req.query.code || null
+	var error = req.query.error || null
 
-	// check validity of state
-	if( state === null || state !== storedState ) {
-		res.redirect('/#' + new URLSearchParams({error: "state_mismatch"}).toString()); // re-route to error page (TODO)
-		console.log("error on callback route: state mismatch");
-		console.log("\t* code = " + code + "\n\t* state = " + state + "\n\t* storedState = " + storedState);
-	}
-	else {
-		res.clearCookie(stateKey);
-		// params for our request to receive access/refresh token
-		let authParams = {
-			url: 'https://accounts.spotify.com/api/token',
-			form: {
-				code: code,
-				redirect_uri: redirect_uri,
-				grant_type: 'authorization_code'
-			},
-			headers: {
-				'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-			},
-			json: true
-		};
-
-		// request access and refresh tokens
-		request.post(authParams, function(err, response, body) {
-			// no error on request, code 200: success
-			if(!err && response.statusCode === 200) {
-
-				var access_token = body.access_token,
-					refresh_token = body.refresh_token;
-				
-				// here's where we'll configure options for our data request (user library information)
-				var options = {
-					url: 'https://api.spotify.com/v1/me/tracks',
-					form: {
-						limit: 50,
-						offset: 0
-					},
-					headers: {
-						'Authorization': 'Bearer' + access_token
-					},
-					json: true
+	if(returnState === state) {
+		if(code !== null) {
+			spotify.authorizationCodeGrant(code).then(
+				function(data: any) {
+				  	console.log('The token expires in ' + data.body['expires_in'])
+				  	console.log('The access token is ' + data.body['access_token'])
+				  	console.log('The refresh token is ' + data.body['refresh_token'])
+			  
+				  	// Set the access token on the API object to use it in later calls
+				  	spotify.setAccessToken(data.body['access_token'])
+				  	spotify.setRefreshToken(data.body['refresh_token'])
+					
+					// get tracks from library
+					spotify.getMySavedTracks({
+						limit: 3,
+						offset: 70
+					}).then(
+						function(data: any) {
+							console.log(data)
+							// successful request
+							if(data.statusCode == 200) {
+								getSongList(data)
+							} else {
+								console.log("Error: request returned status code " + data.statusCode)
+							}
+						},
+						function(err: any) {
+							console.log(err)
+						}
+					)
+				},
+				function(err: any) {
+				  console.log('Something went wrong!', err)
 				}
-				// make our user-library request
-				request.get(options, function(err, response, body) {
-					console.log(body);
-				});
-			}
-			// code other than 200
-			else {
-				res.redirect('/#' + 
-					new URLSearchParams({
-						error: 'invalid_token: status code ' + response.statusCode
-					})
-				);
-			}
-		});
+			)
+		} else {
+			console.log(error)
+		}
+	} else {
+		res.redirect('/#' + new URLSearchParams({
+			error: 'state_mismatch'
+		}))
 	}
-});
 
-// listen locally. This is for quick testing. When we host it on a server we'll need to change this, obviously.
-console.log("Listening at localhost:8000");
-app.listen(8000);
+	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
+})
+
+// -- PARSING THE DATA --
+
+function getSongList(data: any) {
+	// for each data.body.items, extract the song titles into a list
+	// -pagination details in data.body
+	// -statusCode in data
+	if(data != null) {
+		var songs: Array<Object> = data.body.items
+		console.log("SONGS ARE: \n")
+		songs.forEach(function(song) {
+			console.log(song)	// this works!
+		})
+	}
+}
+
+
+app.listen(port, () => {
+	console.log("We're live at localhost:8000");
+})
