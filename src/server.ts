@@ -3,6 +3,7 @@ import request from 'request';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
+import {List, ListIterator} from './list';
 
 
 // Spotify developer credentials
@@ -17,9 +18,12 @@ const origin = 'http://localhost:8000'
 const stateKey = 'spotify-auth-state'
 const scopes = 'user-read-private user-read-library'
 
+// data storage
+let songlist = new List<Object>()
+
 app.use(express.static('../public'))	// allow serving of static content found in public directory (the HTML, any images.)
 	.use(cookieParser())	// and use of cookieParser tool
-	.use(cors( { origin: origin } ));
+	.use(cors( { origin: origin } ))
 
 // return a randomly generated string of length characters
 var getRandomString = function(length: Number) {
@@ -52,9 +56,9 @@ let state = getRandomString(16)
 
 // redirect to Spotify Accounts Service
 app.get('/login', function(req, res) {
-	let scopes = 'user-library-read';
+	let scopes = 'user-library-read'
 	
-	res.cookie(stateKey, state);
+	res.cookie(stateKey, state)
 
 	res.redirect('https://accounts.spotify.com/authorize?' + new URLSearchParams({
 		response_type: 'code',
@@ -62,7 +66,7 @@ app.get('/login', function(req, res) {
 		scope: encodeURIComponent(scopes),
 		redirect_uri: redirect_uri,
 		state: state
-	}).toString());
+	}).toString())
 	// ** Reference: the same URL parsed manually without URLSearchParams would look like this:
 		// '?response_type=code' +
 		// '&client_id=' + client_id +
@@ -100,7 +104,12 @@ app.get('/callback', (req, res) => {
 							console.log(data)
 							// successful request
 							if(data.statusCode == 200) {
-								getSongList(data)
+								if(!getSongList(data)) {
+									console.log("getSongList returned false. Returned data null?")
+								}
+								else {
+									songAgeMetrics()
+								}
 							} else {
 								console.log("Error: request returned status code " + data.statusCode)
 							}
@@ -128,17 +137,36 @@ app.get('/callback', (req, res) => {
 
 // -- PARSING THE DATA --
 
-function getSongList(data: any) {
-	// for each data.body.items, extract the song titles into a list
-	// -pagination details in data.body
-	// -statusCode in data
+// add each song to a linked list songlist
+function getSongList(data: any): boolean {
 	if(data != null) {
 		var songs: Array<Object> = data.body.items
 		console.log("SONGS ARE: \n")
 		songs.forEach(function(song) {
-			console.log(song)	// this works!
+			songlist.insert(song)
 		})
+		return true;
 	}
+	return false;
+}
+
+// iterate through songlist and obtain an average age of the song
+function songAgeMetrics(): any {
+	// comparing dates here. Format is YYYY-MM-DD, is there a shortcut we could use? Or do it manually?
+	// add each song's age to totalAge, then divide by numSongs
+	// keep track of newest and oldest song
+	let songs = songlist.iterator
+	var totalAge = 0
+	var numSongs = songlist.length
+	var oldest: any = null;
+	var newest: any = null;
+
+	while(songs.hasNext) {
+		var current: any = songs.next
+		
+	}
+
+	return { "oldest": oldest, "newest": newest, "average": null }
 }
 
 
