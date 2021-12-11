@@ -101,14 +101,13 @@ app.get('/callback', (req, res) => {
 						offset: 70
 					}).then(
 						function(data: any) {
-							console.log(data)
 							// successful request
 							if(data.statusCode == 200) {
 								if(!getSongList(data)) {
 									console.log("getSongList returned false. Returned data null?")
 								}
 								else {
-									songAgeMetrics()
+									averageAge()
 								}
 							} else {
 								console.log("Error: request returned status code " + data.statusCode)
@@ -141,32 +140,45 @@ app.get('/callback', (req, res) => {
 function getSongList(data: any): boolean {
 	if(data != null) {
 		var songs: Array<Object> = data.body.items
-		console.log("SONGS ARE: \n")
 		songs.forEach(function(song) {
 			songlist.insert(song)
 		})
-		return true;
+		return true
 	}
-	return false;
+	return false
 }
 
 // iterate through songlist and obtain an average age of the song
-function songAgeMetrics(): any {
+function averageAge(): any {
 	// comparing dates here. Format is YYYY-MM-DD, is there a shortcut we could use? Or do it manually?
 	// add each song's age to totalAge, then divide by numSongs
 	// keep track of newest and oldest song
 	let songs = songlist.iterator
-	var totalAge = 0
-	var numSongs = songlist.length
-	var oldest: any = null;
-	var newest: any = null;
+	var totalAge: number = 0	// number of days since song release
+	var numSongs: number = songlist.length
+	var oldest: any = null
+	var newest: any = null
+	let time = Date.now()
+
+	// -- PROBLEMS:
+	// Not all songs have the same date format: see Soma - Remastered by Smashing Pumpkins only has year as 1993... hmm
+	// we assume same format with different levels of detail. So if size of date.split == 1 we just take the year, if it's 2 we 
+	// take YYYY-MM, if its 3 or more we take YYYY-MM-DD... three conditionals, Date can handle them all.
+	// --
 
 	while(songs.hasNext) {
-		var current: any = songs.next
-		
+		let current: any = songs.next
+		var dateParams = (current.track.album.release_date).split("-")	// parse release date of the track
+		let date = new Date(dateParams[0], dateParams[1]-1, dateParams[2])
+		let epochElapsed = date.getTime()	// get epoch time (milliseconds since Jan 1 1970)
+		totalAge += (time - epochElapsed) / (1000 * 86400)	// add number of days since song release to totalAge
+		console.log("current: " + current.track.name + "\nrelease_date: " + current.track.album.release_date + "\ntime: " + dateParams + "\ntotalAge: " + totalAge)
 	}
+	let averageAgeDays: number = totalAge / numSongs
 
-	return { "oldest": oldest, "newest": newest, "average": null }
+	console.log("AVERAGE AGE: " + averageAgeDays)
+
+	return { "oldest": oldest, "newest": newest, "average": averageAgeDays }
 }
 
 
