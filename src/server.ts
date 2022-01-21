@@ -95,28 +95,7 @@ app.get('/callback', (req, res) => {
 				  	spotify.setAccessToken(data.body['access_token'])
 				  	spotify.setRefreshToken(data.body['refresh_token'])
 					
-					// get tracks from library
-					spotify.getMySavedTracks({
-						limit: 3,
-						offset: 70
-					}).then(
-						function(data: any) {
-							// successful request
-							if(data.statusCode == 200) {
-								if(!getSongList(data)) {
-									console.log("getSongList returned false. Returned data null?")
-								}
-								else {
-									averageAge()
-								}
-							} else {
-								console.log("Error: request returned status code " + data.statusCode)
-							}
-						},
-						function(err: any) {
-							console.log(err)
-						}
-					)
+					processSongs()
 				},
 				function(err: any) {
 				  console.log('Something went wrong!', err)
@@ -135,6 +114,41 @@ app.get('/callback', (req, res) => {
 })
 
 // -- PARSING THE DATA --
+
+// fetch and process saved songs from spotify
+function processSongs() {
+	// get tracks from library in multiple requests
+	let numSongsPerRequest = 50		// maximum 50 per Spotify
+	let offset = 0
+	let end: boolean = false
+
+	while(!end) {
+		spotify.getMySavedTracks({
+			limit: numSongsPerRequest,
+			offset: offset
+		}).then(
+			function(data: any) {
+				// successful request
+				if(data.statusCode == 200) {
+					if(!getSongList(data)) {
+						console.log("getSongList returned false. Returned data null?")
+					}
+					else {
+						console.log(data)
+					}
+				} else {
+					console.log("Error: request returned status code " + data.statusCode)
+				}
+			},
+			function(err: any) {
+				console.log(err)
+			}
+		)
+		offset+=numSongsPerRequest
+	}
+
+	
+}
 
 // add each song to a linked list songlist
 function getSongList(data: any): boolean {
@@ -158,7 +172,7 @@ function averageAge(): any {
 	var numSongs: number = songlist.length
 	var oldest: any = null
 	var newest: any = null
-	let time = Date.now()
+	let currentTime = Date.now()
 
 	// -- PROBLEMS:
 	// Not all songs have the same date format: see Soma - Remastered by Smashing Pumpkins only has year as 1993... hmm
@@ -169,9 +183,9 @@ function averageAge(): any {
 	while(songs.hasNext) {
 		let current: any = songs.next
 		var dateParams = (current.track.album.release_date).split("-")	// parse release date of the track
-		let date = new Date(dateParams[0], dateParams[1]-1, dateParams[2])
-		let epochElapsed = date.getTime()	// get epoch time (milliseconds since Jan 1 1970)
-		totalAge += (time - epochElapsed) / (1000 * 86400)	// add number of days since song release to totalAge
+		let releaseDate = new Date(dateParams[0], dateParams[1]-1, dateParams[2])
+		let epochElapsed = releaseDate.getTime()	// get epoch time (milliseconds since Jan 1 1970)
+		totalAge += (currentTime - epochElapsed) / (1000 * 86400)	// add number of days since song release to totalAge
 		console.log("current: " + current.track.name + "\nrelease_date: " + current.track.album.release_date + "\ntime: " + dateParams + "\ntotalAge: " + totalAge)
 	}
 	let averageAgeDays: number = totalAge / numSongs
