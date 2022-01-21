@@ -1,4 +1,4 @@
-<h2>** currently in development as of September 2021 **</h2>
+<h2>** currently in development **</h2>
 
 <text>How old is your Spotify music? This program will analyze your Spotify data and tell you the average age of the music you listen to.</text>
 
