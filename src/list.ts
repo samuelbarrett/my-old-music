@@ -1,14 +1,15 @@
 class List<E> {
 	private _head: ListNode<E> | null = null
-	private _length: Number = 0
+	private _length: number = 0
 
 	constructor(head?: ListNode<E>) {
 		this._head = head || null
+		this._length = 0
 	}
 	get head(): ListNode<E> | null {
 		return this._head
 	}
-	get length(): Number { return this._length }
+	get length(): number { return this._length }
 
 	get iterator(): ListIterator<E> {
 		return new ListIterator(this._head)
@@ -19,6 +20,7 @@ class List<E> {
 		} else {
 			this._head = new ListNode<E>(data, this._head)
 		}
+		this._length++
 	}
 	append(data: E) {
 		if(this._head == null) {
@@ -31,6 +33,7 @@ class List<E> {
 			}
 			current.nextNode = new ListNode<E>(data, null)
 		}
+		this._length++
 	}
 }
 
@@ -70,3 +73,5 @@ class ListIterator<E> {
 		return this._current != null
 	}
 }
+
+export { List, ListIterator };
