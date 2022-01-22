@@ -3,8 +3,10 @@ import request from 'request';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import {List, ListIterator} from './list';
 
+// file output for debugging
+const fs = require('fs')
+let songsFile = 'songs.txt'
 
 // Spotify developer credentials
 const client_id = '06dd2159f6d24963829a1e9ede289664'
@@ -18,8 +20,8 @@ const origin = 'http://localhost:8000'
 const stateKey = 'spotify-auth-state'
 const scopes = 'user-read-private user-read-library'
 
-// data storage
-let songlist = new List<Object>()
+// store the returned songs
+let songlist: Array<Object> = [];
 
 app.use(express.static('../public'))	// allow serving of static content found in public directory (the HTML, any images.)
 	.use(cookieParser())	// and use of cookieParser tool
@@ -49,7 +51,7 @@ var spotify = new SpotifyWebApi({
 // -- EXPRESS ROUTING --
 
 app.get('/', (req, res) => {
-	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
+	res.sendFile('/Users/samuel/Developer/my-old-music/public/home.html')
 })
 
 let state = getRandomString(16)
@@ -95,7 +97,7 @@ app.get('/callback', (req, res) => {
 				  	spotify.setAccessToken(data.body['access_token'])
 				  	spotify.setRefreshToken(data.body['refresh_token'])
 					
-					processSongs()
+					getUserSavedSongs()
 				},
 				function(err: any) {
 				  console.log('Something went wrong!', err)
@@ -110,13 +112,13 @@ app.get('/callback', (req, res) => {
 		}))
 	}
 
-	res.sendFile('C:/Users/samue/Developer/my-old-music/public/home.html')
+	res.sendFile('/Users/samuel/Developer/my-old-music/public/home.html')
 })
 
 // -- PARSING THE DATA --
 
-// fetch and process saved songs from spotify
-function processSongs() {
+// fetch saved songs from spotify
+function getUserSavedSongs() {
 	// get tracks from library in multiple requests
 	let numSongsPerRequest = 50		// maximum 50 per Spotify
 	let offset = 0
@@ -129,15 +131,13 @@ function processSongs() {
 		}).then(
 			function(data: any) {
 				// successful request
-				if(data.statusCode == 200) {
-					if(!getSongList(data)) {
-						console.log("getSongList returned false. Returned data null?")
-					}
-					else {
-						console.log(data)
+				if(data.status == 200) {
+					storeSongs(data)
+					if(data.body.total < numSongsPerRequest) {	// have we reached the end?
+						end = true
 					}
 				} else {
-					console.log("Error: request returned status code " + data.statusCode)
+					console.log(data.message)
 				}
 			},
 			function(err: any) {
@@ -146,54 +146,57 @@ function processSongs() {
 		)
 		offset+=numSongsPerRequest
 	}
-
-	
+	printArray(songlist)
 }
 
-// add each song to a linked list songlist
-function getSongList(data: any): boolean {
-	if(data != null) {
-		var songs: Array<Object> = data.body.items
-		songs.forEach(function(song) {
-			songlist.insert(song)
+// add each song to our local storage
+function storeSongs(data: Array<Object>) {
+	data.forEach((song) => {
+		songlist.push(song)
+	})
+}
+
+// print an array of objects to file
+function printArray(data: Array<Object>) {
+	data.forEach((element) => {
+		fs.appendFile(songsFile, element + '\n', (err: any) => {
+			console.log(err)
 		})
-		return true
-	}
-	return false
+	})
 }
 
-// iterate through songlist and obtain an average age of the song
-function averageAge(): any {
-	// comparing dates here. Format is YYYY-MM-DD, is there a shortcut we could use? Or do it manually?
-	// add each song's age to totalAge, then divide by numSongs
-	// keep track of newest and oldest song
-	let songs = songlist.iterator
-	var totalAge: number = 0	// number of days since song release
-	var numSongs: number = songlist.length
-	var oldest: any = null
-	var newest: any = null
-	let currentTime = Date.now()
+// // TO-DO: fix and finish averageAge calculation
+// // iterate through songlist and obtain an average age of the song
+// function averageAge(): any {
+// 	// comparing dates here. Format is YYYY-MM-DD, is there a shortcut we could use? Or do it manually?
+// 	// add each song's age to totalAge, then divide by numSongs
+// 	// keep track of newest and oldest song
+// 	var totalAge: number = 0	// number of days since song release
+// 	var numSongs: number = songlist.length
+// 	var oldest: any = null
+// 	var newest: any = null
+// 	let currentTime = Date.now()
 
-	// -- PROBLEMS:
-	// Not all songs have the same date format: see Soma - Remastered by Smashing Pumpkins only has year as 1993... hmm
-	// we assume same format with different levels of detail. So if size of date.split == 1 we just take the year, if it's 2 we 
-	// take YYYY-MM, if its 3 or more we take YYYY-MM-DD... three conditionals, Date can handle them all.
-	// --
+// 	// -- PROBLEMS:
+// 	// Not all songs have the same date format: see Soma - Remastered by Smashing Pumpkins only has year as 1993... hmm
+// 	// we assume same format with different levels of detail. So if size of date.split == 1 we just take the year, if it's 2 we 
+// 	// take YYYY-MM, if its 3 or more we take YYYY-MM-DD... three conditionals, Date can handle them all.
+// 	// --
 
-	while(songs.hasNext) {
-		let current: any = songs.next
-		var dateParams = (current.track.album.release_date).split("-")	// parse release date of the track
-		let releaseDate = new Date(dateParams[0], dateParams[1]-1, dateParams[2])
-		let epochElapsed = releaseDate.getTime()	// get epoch time (milliseconds since Jan 1 1970)
-		totalAge += (currentTime - epochElapsed) / (1000 * 86400)	// add number of days since song release to totalAge
-		console.log("current: " + current.track.name + "\nrelease_date: " + current.track.album.release_date + "\ntime: " + dateParams + "\ntotalAge: " + totalAge)
-	}
-	let averageAgeDays: number = totalAge / numSongs
+// 	while(songs.hasNext) {
+// 		let current: any = songs.next
+// 		var dateParams = (current.track.album.release_date).split("-")	// parse release date of the track
+// 		let releaseDate = new Date(dateParams[0], dateParams[1]-1, dateParams[2])
+// 		let epochElapsed = releaseDate.getTime()	// get epoch time (milliseconds since Jan 1 1970)
+// 		totalAge += (currentTime - epochElapsed) / (1000 * 86400)	// add number of days since song release to totalAge
+// 		console.log("current: " + current.track.name + "\nrelease_date: " + current.track.album.release_date + "\ntime: " + dateParams + "\ntotalAge: " + totalAge)
+// 	}
+// 	let averageAgeDays: number = totalAge / numSongs
 
-	console.log("AVERAGE AGE: " + averageAgeDays)
+// 	console.log("AVERAGE AGE: " + averageAgeDays)
 
-	return { "oldest": oldest, "newest": newest, "average": averageAgeDays }
-}
+// 	return { "oldest": oldest, "newest": newest, "average": averageAgeDays }
+// }
 
 
 app.listen(port, () => {
