@@ -2,3 +2,4 @@ node_modules
 src/server.js
 src/list.js
 auth.json
+songs.txt
