@@ -2,65 +2,65 @@ import express from 'express';
 import request from 'request';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
+import authJson from './auth.json';
 
 // file output for debugging
-const fs = require('fs')
-let songsFile = 'songs.txt'
+const fs = require('fs');
+let songLogFile = 'songs.txt';
 
 // Spotify developer credentials
-const client_id = '06dd2159f6d24963829a1e9ede289664'
-const client_secret = ''
-const redirect_uri = 'http://localhost:8000/callback'
+const client_id = '06dd2159f6d24963829a1e9ede289664';
+const client_secret = authJson.secret.toString();
+const redirect_uri = 'http://localhost:8000/callback';
 
 // set up express
-const app = express()
-const port = 8000
-const origin = 'http://localhost:8000'
-const stateKey = 'spotify-auth-state'
-const scopes = 'user-read-private user-read-library'
+const app = express();
+const port = 8000;
+const origin = 'http://localhost:8000';
+const stateKey = 'spotify-auth-state';
+const scopes = 'user-read-private user-read-library';
+
+// Spotify Web Api init
+var SpotifyWebApi = require('spotify-web-api-node');
 
 // store the returned songs
 let songlist: Array<Object> = [];
 
 app.use(express.static('../public'))	// allow serving of static content found in public directory (the HTML, any images.)
 	.use(cookieParser())	// and use of cookieParser tool
-	.use(cors( { origin: origin } ))
+	.use(cors( { origin: origin } ));
 
 // return a randomly generated string of length characters
 var getRandomString = function(length: Number) {
-	var random = ''
-	var choices = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+	var random = '';
+	var choices = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 	for(let i = 0; i < length; i++) {
-		random += choices.charAt( Math.floor(Math.random() * choices.length) )
+		random += choices.charAt( Math.floor(Math.random() * choices.length) );
 	}
-	return random
+	return random;
 }
-
-// Spotify Web Api init
-var SpotifyWebApi = require('spotify-web-api-node')
 
 var spotify = new SpotifyWebApi({
 	clientId: client_id,
 	clientSecret: client_secret,
 	redirectUri: redirect_uri
-})
+});
 
 
 // -- EXPRESS ROUTING --
 
 app.get('/', (req, res) => {
 	res.sendFile('/Users/samuel/Developer/my-old-music/public/home.html')
-})
+});
 
-let state = getRandomString(16)
+let state = getRandomString(16);
 
 // redirect to Spotify Accounts Service
 app.get('/login', function(req, res) {
-	let scopes = 'user-library-read'
+	let scopes = 'user-library-read';
 	
-	res.cookie(stateKey, state)
+	res.cookie(stateKey, state);
 
 	res.redirect('https://accounts.spotify.com/authorize?' + new URLSearchParams({
 		response_type: 'code',
@@ -68,7 +68,7 @@ app.get('/login', function(req, res) {
 		scope: encodeURIComponent(scopes),
 		redirect_uri: redirect_uri,
 		state: state
-	}).toString())
+	}).toString());
 	// ** Reference: the same URL parsed manually without URLSearchParams would look like this:
 		// '?response_type=code' +
 		// '&client_id=' + client_id +
@@ -81,88 +81,91 @@ app.get('/callback', (req, res) => {
 	// --check state, check for presence of error or code parameter (fail or success)
 	// --if fail, report
 	// --if success, request access token using code
-	var returnState = req.query.state || null
-	var code = req.query.code || null
-	var error = req.query.error || null
+	var returnState = req.query.state || null;
+	var code = req.query.code || null;
+	var error = req.query.error || null;
 
 	if(returnState === state) {
 		if(code !== null) {
 			spotify.authorizationCodeGrant(code).then(
 				function(data: any) {
-				  	console.log('The token expires in ' + data.body['expires_in'])
-				  	console.log('The access token is ' + data.body['access_token'])
-				  	console.log('The refresh token is ' + data.body['refresh_token'])
+				  	console.log('The token expires in ' + data.body['expires_in']);
+				  	console.log('The access token is ' + data.body['access_token']);
+				  	console.log('The refresh token is ' + data.body['refresh_token']);
 			  
 				  	// Set the access token on the API object to use it in later calls
-				  	spotify.setAccessToken(data.body['access_token'])
-				  	spotify.setRefreshToken(data.body['refresh_token'])
+				  	spotify.setAccessToken(data.body['access_token']);
+				  	spotify.setRefreshToken(data.body['refresh_token']);
 					
-					getUserSavedSongs()
+					getUserSavedSongs();
 				},
 				function(err: any) {
-				  console.log('Something went wrong!', err)
+				  console.log('Something went wrong!', err);
 				}
 			)
 		} else {
-			console.log(error)
+			console.log(error);
 		}
 	} else {
 		res.redirect('/#' + new URLSearchParams({
 			error: 'state_mismatch'
-		}))
+		}));
 	}
 
-	res.sendFile('/Users/samuel/Developer/my-old-music/public/home.html')
-})
+	res.sendFile('/Users/samuel/Developer/my-old-music/public/home.html');
+});
 
 // -- PARSING THE DATA --
 
 // fetch saved songs from spotify
+// TODO: loop through multiple requests to get ALL user's saved songs (when do we stop? does parseInt work for json values?)
 function getUserSavedSongs() {
 	// get tracks from library in multiple requests
-	let numSongsPerRequest = 50		// maximum 50 per Spotify
-	let offset = 0
-	let end: boolean = false
+	let numSongsPerRequest = 50;	// maximum 50 per Spotify
+	let offset = 0;
+	let end: boolean = false;
 
-	while(!end) {
-		spotify.getMySavedTracks({
-			limit: numSongsPerRequest,
-			offset: offset
-		}).then(
-			function(data: any) {
-				// successful request
-				if(data.status == 200) {
-					storeSongs(data)
-					if(data.body.total < numSongsPerRequest) {	// have we reached the end?
-						end = true
-					}
-				} else {
-					console.log(data.message)
+	spotify.getMySavedTracks({
+		limit: numSongsPerRequest,
+		offset: offset
+	}).then(
+		function(data: any) {
+			// successful request
+			if(data.statusCode == 200) {
+				storeSongs(data.body.items);
+				if(Number.parseInt(data.body.total) < numSongsPerRequest) {	// have we reached the end?
+					end = true;
 				}
-			},
-			function(err: any) {
-				console.log(err)
+			} else {
+				console.log("spotify.getMySavedTracks returned a bad error code: " + data);
 			}
-		)
-		offset+=numSongsPerRequest
-	}
-	printArray(songlist)
+		},
+		function(err: any) {
+			console.log("getMySavedTracks failed: " + err);
+		}
+	)
+	offset+=numSongsPerRequest;
 }
 
 // add each song to our local storage
 function storeSongs(data: Array<Object>) {
+	console.log(data);
 	data.forEach((song) => {
-		songlist.push(song)
+		songlist.push(song);
 	})
+	printToFile(data, songLogFile);
 }
 
 // print an array of objects to file
-function printArray(data: Array<Object>) {
+// TODO: fix formatting, new function for this probably? csv (ew)? custom formatted table?
+function printToFile(data: Array<Object>, file: String) {
+	console.log("printing results to file")
 	data.forEach((element) => {
-		fs.appendFile(songsFile, element + '\n', (err: any) => {
-			console.log(err)
-		})
-	})
+		fs.appendFile(file, element + '\n', (err: any) => {
+			console.log("File output error: " + err);
+		});
+		
+	});
 }
 
 // // TO-DO: fix and finish averageAge calculation
@@ -201,4 +204,4 @@ function printArray(data: Array<Object>) {
 
 app.listen(port, () => {
 	console.log("We're live at localhost:8000");
-})
+});
