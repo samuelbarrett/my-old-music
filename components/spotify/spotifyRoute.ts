@@ -1,9 +1,11 @@
+// router for the spotify component
+
 import express from 'express';
 
-const spotifyRouter = express.Router();
+const router = express.Router();
 
-spotifyRouter.get('/spotify', (req, res) => {
+router.get('/', (req, res) => {
 	res.send('okay here is spotify');
 });
 
-export { spotifyRouter };
+export { router as spotifyRouter };
