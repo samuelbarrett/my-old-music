@@ -8,7 +8,7 @@
     "dev": "npx supervisor server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "ts-node-dev --respawn ./compiled/server.js"
+    "start": "ts-node-dev --respawn ./server.js"
   },
   "repository": {
     "type": "git",
