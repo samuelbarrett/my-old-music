@@ -6,7 +6,7 @@ import web from './web.json';
 import { welcomeRouter } from './components/welcome/welcomeRoute';
 import { spotifyRouter } from './components/spotify/spotifyRoute';
 
-const origin = `http://localhost:${web.port}`;
+const origin = `${web.origin}${web.port}`;
 const app = express();
 
 app.use(express.static('./'))	// allow serving of content (everything within public folder)

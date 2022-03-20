@@ -1,3 +1,6 @@
 {
-    "port": 8000
+    "PORT": 8000,
+	"ORIGIN": "http://localhost:",
+	"REDIRECT_SIGNEDIN": "http://localhost:8000/spotify/signed-in",
+	"AUTHORIZATION_SUCCESS_ENDPOINT": "authd/"
 }
