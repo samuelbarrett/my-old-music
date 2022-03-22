@@ -2,5 +2,7 @@
     "PORT": 8000,
 	"ORIGIN": "http://localhost:",
 	"REDIRECT_SIGNEDIN": "http://localhost:8000/spotify/signed-in",
-	"AUTHORIZATION_SUCCESS_ENDPOINT": "authd/"
+	"SPOTIFY_AUTH_SUCCESS_ENDPOINT": "authd/",
+	"SPOTIFY_BASE_ENDPOINT": "spotify/",
+	"USERDATA_BASE_ENDPOINT": "userdata/"
 }

@@ -47,7 +47,7 @@ let getAuthorization = function(req: any, res: any) {
 				  	spotify.setAccessToken(data.body['access_token']);
 				  	spotify.setRefreshToken(data.body['refresh_token']);
 					
-					res.redirect(`${web.ORIGIN}${web.PORT}/spotify/${web.AUTHORIZATION_SUCCESS_ENDPOINT}`);
+					res.redirect(`${web.ORIGIN}${web.PORT}/${web.SPOTIFY_BASE_ENDPOINT}${web.SPOTIFY_AUTH_SUCCESS_ENDPOINT}`);
 				},
 				function(err: any) {
 				  console.log('Something went wrong!', err);
@@ -61,6 +61,20 @@ let getAuthorization = function(req: any, res: any) {
 
 // request from user library
 let getUserSongsData = function(req: any, res: any) {
+	const numSongsPerRequest = 50; // maximum 50 songs, per Spotify
+	let offset = 0;
+	let endOfTracks = false;
+
+	while(!endOfTracks) {
+		spotify.getMySavedTracks({
+			limit: numSongsPerRequest,
+			offset: 0
+		}).then( function(data: any) {
+
+		}, function(error: any) {
+			console.log(error);
+		});
+	}
 	
 };
 
@@ -75,5 +89,5 @@ let getRandomString = function(length: Number) {
 	return randomString;
 }
 
-export { spotify, login, getAuthorization };
+export { spotify, login, getAuthorization, getUserSongsData };
 
