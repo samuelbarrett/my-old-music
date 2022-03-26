@@ -5,15 +5,18 @@ import web from './web.json';
 
 import { welcomeRouter } from './components/welcome/welcomeRoute';
 import { spotifyRouter } from './components/spotify/spotifyRoute';
+import { userDataRouter } from './components/userdata/userDataRoute';
 
-const origin = `${web.origin}${web.port}`;
+const origin = `${web.ORIGIN}${web.PORT}`;
 const app = express();
 
 app.use(express.static('./'))	// allow serving of content (everything within public folder)
-	.use(cookieParser())	// and use of cookieParser tool
+	.use(cookieParser())
 	.use(cors( { origin: origin } ))
 	
-app.use('/', welcomeRouter);
-app.use('/spotify', spotifyRouter);
+// connect to Express Router objects
+app.use('/', welcomeRouter)
+	.use('/spotify', spotifyRouter)
+	.use('/userdata', userDataRouter);
 
 export { app };
