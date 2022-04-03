@@ -10,7 +10,7 @@ import { userDataRouter } from './components/userdata/userDataRoute';
 const origin = `${web.ORIGIN}${web.PORT}`;
 const app = express();
 
-app.use(express.static('./'))	// allow serving of content (everything within public folder)
+app.use(express.static(__dirname + '/components'))	// allow serving of content (everything within public folder)
 	.use(cookieParser())
 	.use(cors( { origin: origin } ))
 	
