@@ -60,22 +60,31 @@ let getAuthorization = function(req: any, res: any) {
 };
 
 // request from user library
-let getUserSongsData = function(req: any, res: any) {
+let getUserSongsData = async function(req: any, res: any) {
 	const numSongsPerRequest = 50; // maximum 50 songs, per Spotify
 	let offset = 0;
 	let endOfTracks = false;
-
-	while(!endOfTracks) {
-		spotify.getMySavedTracks({
-			limit: numSongsPerRequest,
-			offset: 0
-		}).then( function(data: any) {
-
-		}, function(error: any) {
-			console.log(error);
-		});
-	}
 	
+	while (!endOfTracks) {
+		const data = await spotify.getMySavedTracks({
+			limit: numSongsPerRequest,
+			offset: offset
+		})
+	
+		if (data.statusCode === 200) {
+			// call userdata function to store the data.
+
+			if (offset > data.body.total - numSongsPerRequest) {
+				endOfTracks = true;
+			} else {
+				offset += numSongsPerRequest
+			}
+		} else {
+			console.log("spotify.getMySavedTracks returned unsuccessful response code");
+			endOfTracks = true;
+		}
+	}
+	res.redirect(`${web.ORIGIN}${web.PORT}${web.USERDATA_BASE_ENDPOINT}`);
 };
 
 // generate a random string of defined length

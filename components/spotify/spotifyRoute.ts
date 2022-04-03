@@ -16,7 +16,6 @@ router.get('/signed-in', (req, res) => {
 
 router.get(`/${web.SPOTIFY_AUTH_SUCCESS_ENDPOINT}`, (req, res) => {
 	getUserSongsData(req, res);
-	res.redirect(`${web.ORIGIN}${web.PORT}${web.USERDATA_BASE_ENDPOINT}`);
 });
 
 export { router as spotifyRouter };
