@@ -5,6 +5,7 @@ import { query } from 'express';
 import { URLSearchParams } from 'url';
 import auth from '../../auth.json';
 import web from '../../web.json';
+import { addSongs, listSongs } from '../userdata/songsController';
 
 const scopes = 'user-library-read';
 const stateKey = 'spotify-auth-state';
@@ -64,27 +65,34 @@ let getUserSongsData = async function(req: any, res: any) {
 	const numSongsPerRequest = 50; // maximum 50 songs, per Spotify
 	let offset = 0;
 	let endOfTracks = false;
-	
-	while (!endOfTracks) {
-		const data = await spotify.getMySavedTracks({
-			limit: numSongsPerRequest,
-			offset: offset
-		})
-	
-		if (data.statusCode === 200) {
-			// call userdata function to store the data.
 
-			if (offset > data.body.total - numSongsPerRequest) {
+	while (!endOfTracks) {
+		try {
+			await spotify.getMySavedTracks({
+				limit: numSongsPerRequest,
+				offset: offset
+			}).then( function(data: any) {
+
+				if (data.statusCode === 200) {
+					addSongs(data.body.items);
+
+					if (data.body.total < numSongsPerRequest) {
+						endOfTracks = true;
+					} else {
+						offset += data.body.total;
+					}
+				} else {
+					console.log("spotify.getMySavedTracks returned unsuccessful response code");
+					endOfTracks = true;
+				}
+			}, function(error: any) {
 				endOfTracks = true;
-			} else {
-				offset += numSongsPerRequest
-			}
-		} else {
-			console.log("spotify.getMySavedTracks returned unsuccessful response code");
-			endOfTracks = true;
+				res.send('error getting saved tracks!');
+			})
+		} catch (e: any) {
+			console.log(e);
 		}
 	}
-	res.redirect(`${web.ORIGIN}${web.PORT}${web.USERDATA_BASE_ENDPOINT}`);
 };
 
 // generate a random string of defined length
@@ -98,5 +106,5 @@ let getRandomString = function(length: Number) {
 	return randomString;
 }
 
-export { spotify, login, getAuthorization, getUserSongsData };
+export { login, getAuthorization, getUserSongsData };
 
