@@ -13,7 +13,7 @@ let listSongs = function() {
 }
 
 let countSongs = function(): Number {
-	return songs.size();
+	return songs.length;
 }
 
-export { addSongs, listSongs };
+export { addSongs, listSongs, countSongs };

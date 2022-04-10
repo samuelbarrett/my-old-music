@@ -5,7 +5,7 @@ import { query } from 'express';
 import { URLSearchParams } from 'url';
 import auth from '../../auth.json';
 import web from '../../web.json';
-import { addSongs, listSongs } from '../userdata/songsController';
+import { addSongs, listSongs, countSongs } from '../userdata/songsController';
 
 const scopes = 'user-library-read';
 const stateKey = 'spotify-auth-state';
@@ -75,6 +75,7 @@ let getUserSongsData = async function(req: any, res: any) {
 
 				if (data.statusCode === 200) {
 					addSongs(data.body.items);
+					console.log(`SONG COUNT = ${countSongs()}`)
 
 					if (data.body.total < numSongsPerRequest) {
 						endOfTracks = true;
@@ -93,6 +94,7 @@ let getUserSongsData = async function(req: any, res: any) {
 			console.log(e);
 		}
 	}
+	listSongs()
 };
 
 // generate a random string of defined length
