@@ -77,10 +77,10 @@ let getUserSongsData = async function(req: any, res: any) {
 					addSongs(data.body.items);
 					console.log(`SONG COUNT = ${countSongs()}`)
 
-					if (data.body.total < numSongsPerRequest) {
+					if (data.body.next == null) {
 						endOfTracks = true;
 					} else {
-						offset += data.body.total;
+						offset += numSongsPerRequest;
 					}
 				} else {
 					console.log("spotify.getMySavedTracks returned unsuccessful response code");
