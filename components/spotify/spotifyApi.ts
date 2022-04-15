@@ -94,7 +94,6 @@ let getUserSongsData = async function(req: any, res: any) {
 			console.log(e);
 		}
 	}
-	listSongs()
 };
 
 // generate a random string of defined length

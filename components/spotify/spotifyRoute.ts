@@ -16,7 +16,7 @@ router.get('/signed-in', (req, res) => {
 
 router.get(`/authd`, (req, res) => {
 	getUserSongsData(req, res);
-	res.send("authd!");
+	res.redirect(`${web.ORIGIN}${web.PORT}/${web.USERDATA_BASE_ENDPOINT}`);
 });
 
 export { router as spotifyRouter };
