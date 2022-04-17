@@ -1,3 +1,5 @@
+import e from "express";
+
 let songs: any = [];
 
 let addSongs = function(input: any) {
@@ -22,23 +24,28 @@ let averageAgeInDays = function(): number {
 	let numSongs = 0;
 
 	songs.forEach((song: any) => {
+		let currentDate = new Date();
 		let releaseDate: Date = new Date();
 		let precision = song.track.album.release_date_precision;
+		let dateString: string;
 
-		if (precision == 'day') {
-			releaseDate = new Date(song.track.album.release_date);
-		} else if (precision == 'year') {
-			// songs with only release year will be assumed to have released on current day of that year
-			let currentDate = new Date();
-			let dateString = `${song.track.album.release_date}-${currentDate.getMonth()+1}-${currentDate.getDate()}`;
-			console.log(dateString);
-			releaseDate = new Date(dateString);
-		} else {
-			console.log(song.track.name + " : release date precision is not day or year!");
+		switch (precision) {
+			case 'day':
+				dateString = song.track.album.release_date;
+				break;
+			case 'month':
+				dateString = `${song.track.album.release_date}-${currentDate.getDate()}`;
+				break;
+			case 'year':
+				dateString = `${song.track.album.release_date}-${currentDate.getMonth()+1}-${currentDate.getDate()}`;
+				break;
+			default:
+				throw new Error(`${song.track.name}: precision not day, month or year: ${song.track.album.release_date} with precision ${song.track.album.release_date_precision}`)
 		}
 
+		releaseDate = new Date(dateString);
+		totalAge += (currentDate.getTime() - releaseDate.getTime()) / 1000 / 86400;
 		numSongs++;
-		totalAge += (releaseDate.getTime()) / 1000 / 86400;
 	});
 
 	console.log("ITERATED THROUGH " + numSongs);
