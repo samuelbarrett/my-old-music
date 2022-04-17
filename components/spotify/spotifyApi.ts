@@ -68,28 +68,24 @@ let getUserSongsData = async function(req: any, res: any) {
 
 	while (!endOfTracks) {
 		try {
-			await spotify.getMySavedTracks({
+			let data = await spotify.getMySavedTracks({
 				limit: numSongsPerRequest,
 				offset: offset
-			}).then( function(data: any) {
+			});
 
-				if (data.statusCode === 200) {
-					addSongs(data.body.items);
-					console.log(`SONG COUNT = ${countSongs()}`)
+			if (data.statusCode === 200) {
+				addSongs(data.body.items);
+				console.log(`SONG COUNT = ${countSongs()}`)
 
-					if (data.body.next == null) {
-						endOfTracks = true;
-					} else {
-						offset += numSongsPerRequest;
-					}
-				} else {
-					console.log("spotify.getMySavedTracks returned unsuccessful response code");
+				if (data.body.next == null) {
 					endOfTracks = true;
+				} else {
+					offset += numSongsPerRequest;
 				}
-			}, function(error: any) {
+			} else {
+				console.log("spotify.getMySavedTracks returned unsuccessful response code");
 				endOfTracks = true;
-				res.send('error getting saved tracks!');
-			})
+			}
 		} catch (e: any) {
 			console.log(e);
 		}
