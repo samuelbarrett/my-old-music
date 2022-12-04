@@ -3,9 +3,9 @@
 let spotifyWebApi = require('spotify-web-api-node');
 import { query } from 'express';
 import { URLSearchParams } from 'url';
-import auth from '../../auth.json';
-import web from '../../web.json';
-import { addSongs, listSongs, countSongs } from '../userdata/songsController';
+import auth from '../auth.json';
+import web from '../web.json';
+import { addSongs, listSongs, countSongs } from './songsController';
 
 const scopes = 'user-library-read';
 const stateKey = 'spotify-auth-state';
