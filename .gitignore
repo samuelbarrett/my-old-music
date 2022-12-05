@@ -3,3 +3,4 @@ auth.json
 .DS_Store
 *.js
 *.js.map
+.parcel-cache
