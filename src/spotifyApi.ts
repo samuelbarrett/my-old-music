@@ -1,7 +1,6 @@
 // requests to Spotify API through spotify-web-api-node library
 
 let spotifyWebApi = require('spotify-web-api-node');
-import { query } from 'express';
 import { URLSearchParams } from 'url';
 import auth from '../auth.json';
 import web from '../web.json';
