@@ -1,4 +1,4 @@
-let spotifyWebApi = require('spotify-web-api-node');
+import SpotifyWebApi from 'spotify-web-api-node';
 import { URLSearchParams } from 'url';
 import auth from '../auth.json';
 import web from '../web.json';
@@ -9,7 +9,7 @@ let state: string;
 
 let songs: any = [];
 
-const spotify = new spotifyWebApi({
+const spotify = new SpotifyWebApi({
 	clientId: auth.CLIENT_ID,
 	clientSecret: auth.SECRET,
 	redirectUri: web.REDIRECT_SIGNEDIN

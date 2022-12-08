@@ -1,8 +1,4 @@
 {
-	"files.exclude": {
-		"**/*.js": true,
-		"**/*.js.map": true
-	},
 	"editor.mouseWheelScrollSensitivity": 0.5,
 	"editor.scrollbar.scrollByPage": false
 }
