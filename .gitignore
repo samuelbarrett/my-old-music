@@ -3,4 +3,4 @@ auth.json
 .DS_Store
 src/*.js
 src/*.js.map
-dist/*
+public/dist/*

@@ -1,0 +1,44 @@
+:root {
+	--bg-page: indigo;
+}
+
+#page {
+	height: 100vh;
+	width: 100vw;
+	min-width: 600px;
+	min-height: 600px;
+	display: grid;
+	background-color: var(--bg-page);
+	margin: auto;
+	align-items: center;
+}
+
+#content {
+	height: 50%;
+}
+
+#header {
+	font-weight: 400;
+	font-style: italic;
+	color: white;
+	margin: auto;
+}
+
+#header-title {
+	text-align: center;
+}
+
+#login {
+	justify-content: center;
+	display: grid;
+}
+
+#description {
+	font-size: large;
+	color: white;
+	text-align: center;
+}
+
+#login-button {
+	justify-self: center;
+}

@@ -1,7 +1,7 @@
 import SpotifyWebApi from 'spotify-web-api-node';
 import { URLSearchParams } from 'url';
-import auth from '../auth.json';
-import web from '../web.json';
+import auth from '../auth.json' assert { type: 'json'};
+import web from '../web.json' assert { type: 'json'};
 
 const scopes = 'user-library-read';
 const stateKey = 'spotify-auth-state';
@@ -16,7 +16,7 @@ const spotify = new SpotifyWebApi({
 });
 
 // request user authentication from Spotify Accounts Service
-let login = function(req: any, res: any) {
+function login(req: any, res: any) {
 	state = getRandomString(16);
 
 	res.cookie(stateKey, state);
@@ -152,3 +152,5 @@ let averageAgeInDays = function(): number {
 
 	return totalAge / songs.length;
 }
+
+export { login };
