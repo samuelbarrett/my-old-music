@@ -5,8 +5,8 @@
   "main": "./src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "watch": "tsc",
+    "start": "nodemon server.js",
+    "ts": "tsc",
     "build": "webpack"
   },
   "repository": {
