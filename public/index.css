@@ -1,5 +1,10 @@
 :root {
-	--bg-page: indigo;
+	--bg-page: rgb(45, 45, 45);
+}
+
+body, html {
+	margin: 0;
+	padding: 0;
 }
 
 #page {

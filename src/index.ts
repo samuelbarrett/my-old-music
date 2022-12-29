@@ -46,7 +46,7 @@ let getAuthorization = function(req: any, res: any) {
 				  	spotify.setAccessToken(data.body['access_token']);
 				  	spotify.setRefreshToken(data.body['refresh_token']);
 					
-					res.redirect(`${web.ORIGIN}${web.PORT}/${web.SPOTIFY_BASE_ENDPOINT}${web.SPOTIFY_AUTH_SUCCESS_ENDPOINT}`);
+					res.redirect(`${web.ORIGIN}${web.PORT}/${web.SPOTIFY_AUTH_SUCCESS_ENDPOINT}`);
 				},
 				function(err: any) {
 				  console.log('Something went wrong!', err);
@@ -59,7 +59,7 @@ let getAuthorization = function(req: any, res: any) {
 };
 
 // request from user library
-let getUserSongsData = async function(req: any, res: any) {
+async function getUserSongsData() {
 	const numSongsPerRequest = 50; // maximum 50 songs, per Spotify
 	let offset = 0;
 	let endOfTracks = false;
@@ -81,13 +81,13 @@ let getUserSongsData = async function(req: any, res: any) {
 					offset += numSongsPerRequest;
 				}
 			} else {
-				console.log("spotify.getMySavedTracks returned unsuccessful response code");
-				endOfTracks = true;
+				return endOfTracks;
 			}
 		} catch (e: any) {
 			console.log(e);
 		}
 	}
+	return endOfTracks;
 };
 
 // generate a random string of defined length
@@ -153,4 +153,11 @@ let averageAgeInDays = function(): number {
 	return totalAge / songs.length;
 }
 
-export { login };
+async function getData(req: any, res: any) {
+	await getUserSongsData();
+
+	let days: number = averageAgeInDays();
+	res.send(`The average age of a song in your library is ${days} days old!`);
+}
+
+export { login, getAuthorization, getData };
