@@ -1,5 +1,6 @@
 node_modules
 auth.json
 .DS_Store
-*.js
-*.js.map
+src/*.js
+src/*.js.map
+public/dist/*
