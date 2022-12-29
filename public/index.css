@@ -18,8 +18,9 @@
 }
 
 #header {
-	font-weight: 400;
-	font-style: italic;
+	font-size: 40px;
+	font-weight: 700;
+	font-family: 'PT Serif', serif;
 	color: white;
 	margin: auto;
 }
@@ -35,6 +36,9 @@
 
 #description {
 	font-size: large;
+	font-weight: 400;
+	font-style: italic;
+	font-family: 'PT Serif', serif;
 	color: white;
 	text-align: center;
 }
