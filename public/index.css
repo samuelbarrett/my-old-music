@@ -16,6 +16,7 @@ body, html {
 	background-color: var(--bg-page);
 	margin: auto;
 	align-items: center;
+	font-family: 'PT Serif', serif;
 }
 
 #content {
@@ -23,9 +24,8 @@ body, html {
 }
 
 #header {
-	font-size: 40px;
+	font-size: 60px;
 	font-weight: 700;
-	font-family: 'PT Serif', serif;
 	color: white;
 	margin: auto;
 }
@@ -37,17 +37,24 @@ body, html {
 #login {
 	justify-content: center;
 	display: grid;
+	padding: 3em;
 }
 
-#description {
-	font-size: large;
+.info {
+	font-size: medium;
 	font-weight: 400;
-	font-style: italic;
-	font-family: 'PT Serif', serif;
 	color: white;
 	text-align: center;
 }
 
+#description {
+	font-style: italic;
+}
+
 #login-button {
 	justify-self: center;
+}
+
+#about {
+
 }

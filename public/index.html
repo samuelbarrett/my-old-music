@@ -3,26 +3,32 @@
 	<head>
 		<meta charset="utf-8">
 		<title>My Old Music</title>
-		<link rel="stylesheet" type="text/css" href="/index.css">
 		<script type="text/javascript" src="/dist/main.js"></script>
-		<!-- google fonts: PT Serif -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">		
+		<link rel="stylesheet" type="text/css" href="/index.css">
 	</head>
-
 	<body>
 		<div id="page">
 			<div id="content">
 				<div id="header">
 					<div id="header-title">My Old Music</div>
 				</div>
+				<div class="info" id="description">
+					<h2 id="description">How old is the music you listen to? Login with Spotify to find out!</h2>
+				</div>
 				<div id="login">
-					<h1 id="description">How old is the music you listen to? Login with Spotify to find out!</h1>
-					<a id="login-button" href="/login">Log in with Spotify</a>
+					<button type="button" class="btn btn-light" id="login-button" href="/login">Login with Spotify</button>
+				</div>
+				<div class="info" id="about">
+					<p>Note: this app is currently in development mode, and will only work with specified Spotify accounts.</p>
+					<p>Made by Sam, who was too curious about his own music :)</p>
 				</div>
 			</div>
 		</div>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 	</body>
 </html>
 
