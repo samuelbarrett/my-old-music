@@ -19,18 +19,18 @@ body, html {
 	font-family: 'PT Serif', serif;
 }
 
-#content {
+.content {
 	height: 50%;
 }
 
-#header {
+.header {
 	font-size: 60px;
 	font-weight: 700;
 	color: white;
 	margin: auto;
 }
 
-#header-title {
+.header-title {
 	text-align: center;
 }
 
@@ -47,14 +47,10 @@ body, html {
 	text-align: center;
 }
 
-#description {
+.description {
 	font-style: italic;
 }
 
 #login-button {
 	justify-self: center;
-}
-
-#about {
-
 }

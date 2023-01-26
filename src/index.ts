@@ -9,6 +9,7 @@ let state: string;
 
 let songs: any = [];
 
+// spotifyWebApi client object
 const spotify = new SpotifyWebApi({
 	clientId: auth.CLIENT_ID,
 	clientSecret: auth.SECRET,
