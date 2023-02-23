@@ -1,7 +1,7 @@
 {
   "name": "my-old-music",
   "version": "1.0.0",
-  "description": "Calculate the average age ot the music in your Spotify library.",
+  "description": "Calculate the average age of the music in your Spotify library.",
   "main": "./src/index.ts",
   "type": "module",
   "scripts": {
