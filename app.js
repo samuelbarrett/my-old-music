@@ -6,11 +6,13 @@ import { router } from './src/router.js';
 
 const app = express();
 const port = process.env.PORT || 8000;
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const origin = `${web.ORIGIN}:${web.PORT}`;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-app.use(express.static(__dirname + '/public'));
-
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
 app.use('/', router);
 
-export { app, port };
+app.listen(port, function() {
+	console.log(`live at localhost:${port}`);
+});
