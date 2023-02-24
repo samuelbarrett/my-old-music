@@ -19,8 +19,8 @@ router.get('/signed-in', (req, res) => {
 });
 
 router.get('/authd', (req, res) => {
-	getData(req, res);
 	res.sendFile(path.join(__dirname, '../public/results.html'));
+	getData(req, res);
 });
 
 export { router };

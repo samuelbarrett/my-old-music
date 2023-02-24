@@ -86,6 +86,7 @@ async function getUserSongsData() {
 			}
 		} catch (e: any) {
 			console.log(e);
+			endOfTracks = true;
 		}
 	}
 	return endOfTracks;
@@ -149,16 +150,15 @@ let averageAgeInDays = function(): number {
 		numSongs++;
 	});
 
-	console.log("ITERATED THROUGH " + numSongs);
+	console.log('ITERATED THROUGH ' + numSongs);
 
 	return totalAge / songs.length;
 }
 
 async function getData(req: any, res: any) {
 	await getUserSongsData();
-
 	let days: number = averageAgeInDays();
-	res.send(`The average age of a song in your library is ${days} days old!`);
+	
 }
 
 export { login, getAuthorization, getData };
