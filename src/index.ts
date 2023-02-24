@@ -9,6 +9,12 @@ let state: string;
 
 let songs: any = [];
 
+let userdata = {
+	avgMusicAgeDays: -1,
+	avgMusicAgeYears: -1
+}
+
+// spotifyWebApi client object
 const spotify = new SpotifyWebApi({
 	clientId: auth.CLIENT_ID,
 	clientSecret: auth.SECRET,
@@ -85,9 +91,17 @@ async function getUserSongsData() {
 			}
 		} catch (e: any) {
 			console.log(e);
+			endOfTracks = true;
 		}
 	}
 	return endOfTracks;
+};
+
+async function getData(req: any, res: any) {
+	if (songs.length == 0) {
+		await getUserSongsData();
+	}
+	calculateStatistics();
 };
 
 // generate a random string of defined length
@@ -114,11 +128,16 @@ let listSongs = function() {
 	});
 }
 
-let countSongs = function(): Number {
+let countSongs = function(): number {
 	return songs.length;
 }
 
-let averageAgeInDays = function(): number {
+function calculateStatistics() {
+	calcAvgAgeDays();
+	calcAvgAgeYears();
+}
+
+let calcAvgAgeDays = function() {
 	let result = 0;
 	let totalAge = 0;
 	let numSongs = 0;
@@ -141,23 +160,29 @@ let averageAgeInDays = function(): number {
 				break;
 			default:
 				throw new Error(`${song.track.name}: precision not day, month or year: ${song.track.album.release_date} with precision ${song.track.album.release_date_precision}`)
-		}
+		};
 
 		releaseDate = new Date(dateString);
 		totalAge += (currentDate.getTime() - releaseDate.getTime()) / 1000 / 86400;
 		numSongs++;
 	});
 
-	console.log("ITERATED THROUGH " + numSongs);
+	console.log('ITERATED THROUGH ' + numSongs);
 
-	return totalAge / songs.length;
+	userdata.avgMusicAgeDays = Math.round(totalAge / songs.length);
 }
 
-async function getData(req: any, res: any) {
-	await getUserSongsData();
-
-	let days: number = averageAgeInDays();
-	res.send(`The average age of a song in your library is ${days} days old!`);
+function calcAvgAgeYears() {
+	// divide days into years and chop off everything after the first two decimal places. toFixed
+	userdata.avgMusicAgeYears = Number((userdata.avgMusicAgeDays / 365.25).toFixed(2));
 }
 
-export { login, getAuthorization, getData };
+function getMusicAgeYears(): string {
+	return userdata.avgMusicAgeYears.toString();
+}
+
+function getMusicAgeDays(): string {
+	return userdata.avgMusicAgeDays.toString();
+}
+
+export { login, getAuthorization, getData, getMusicAgeYears, getMusicAgeDays };
