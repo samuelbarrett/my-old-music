@@ -5,10 +5,9 @@ import web from '../web.json' assert { type: 'json'};
 
 const scopes = 'user-library-read';
 const stateKey = 'spotify-auth-state';
-let state: string;
+let stateCookie: string;
 
 let songs: any = [];
-
 let userdata = {
 	avgMusicAgeDays: -1,
 	avgMusicAgeYears: -1
@@ -23,25 +22,25 @@ const spotify = new SpotifyWebApi({
 
 // request user authentication from Spotify Accounts Service
 function login(req: any, res: any) {
-	state = getRandomString(16);
+	stateCookie = getRandomString(16);
 
-	res.cookie(stateKey, state);
+	res.cookie(stateKey, stateCookie);
 
 	res.redirect('https://accounts.spotify.com/authorize?' + new URLSearchParams([
 		["response_type", "code"],
 		["client_id", encodeURIComponent(auth.CLIENT_ID)],
 		["scope", encodeURIComponent(scopes)],
 		["redirect_uri", web.REDIRECT_SIGNEDIN],
-		["state", state]
+		["state", stateCookie]
 	]).toString());
 };
 
-let getAuthorization = function(req: any, res: any) {
+function getAuthorization(req: any, res: any) {
 	let returnState = req.query.state || null;
 	let code = req.query.code || null;
 	let error = req.query.error || null;
 
-	if (returnState === state) {
+	if (returnState === stateCookie) {
 		if (code !== null) {
 			spotify.authorizationCodeGrant(code).then(
 				function(data: any) {
@@ -65,7 +64,7 @@ let getAuthorization = function(req: any, res: any) {
 };
 
 // request from user library
-async function getUserSongsData() {
+async function requestSongsInLibrary() {
 	const numSongsPerRequest = 50; // maximum 50 songs, per Spotify
 	let offset = 0;
 	let endOfTracks = false;
@@ -99,13 +98,13 @@ async function getUserSongsData() {
 
 async function getData(req: any, res: any) {
 	if (songs.length == 0) {
-		await getUserSongsData();
+		await requestSongsInLibrary();
+		calculateStatistics();
 	}
-	calculateStatistics();
 };
 
 // generate a random string of defined length
-let getRandomString = function(length: Number) {
+function getRandomString(length: Number): string {
 	let randomString = '';
 	let validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -116,19 +115,13 @@ let getRandomString = function(length: Number) {
 }
 
 
-let addSongs = function(input: any) {
+function addSongs(input: any) {
 	input.forEach((elem: any) => {
 		songs.push(elem);
 	})
 }
 
-let listSongs = function() {
-	songs.forEach((song: any) => {
-		console.log(song.track.name);
-	});
-}
-
-let countSongs = function(): number {
+function countSongs(): number {
 	return songs.length;
 }
 
@@ -137,7 +130,8 @@ function calculateStatistics() {
 	calcAvgAgeYears();
 }
 
-let calcAvgAgeDays = function() {
+// calculate the mean age of the songs in days since released
+function calcAvgAgeDays() {
 	let result = 0;
 	let totalAge = 0;
 	let numSongs = 0;

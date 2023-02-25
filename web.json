@@ -2,6 +2,5 @@
     "PORT": 8000,
 	"ORIGIN": "http://localhost:",
 	"REDIRECT_SIGNEDIN": "http://localhost:8000/signed-in",
-	"SPOTIFY_AUTH_SUCCESS_ENDPOINT": "authd",
-	"USERDATA_BASE_ENDPOINT": "userdata/"
+	"SPOTIFY_AUTH_SUCCESS_ENDPOINT": "authd"
 }
